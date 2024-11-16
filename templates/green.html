@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geographical Area Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="static/style.css" />
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Include select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Include select2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+</head>
+<body>
+
+<div id="container">
+    <!-- Form Section -->
+    <div id="form-section">
+        <h2>Filter Geographical Data</h2>
+
+        <!-- Dropdown-->
+        <div class="form-group" id="list_dropdown">
+            <label for="codeCultu">Code Cultu:</label>
+            <select id="codeCultu">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+        <!-- Input for 'surface_ha' -->
+        <div class="form-group" id="minmax_filter">
+            <span class="minmax">
+                <!-- <label for="surfaceHa_min">Minimum Surface (ha):</label> -->
+                <input type="number" id="surfaceHa_min" step="0.01" placeholder="Enter minimum surface area" />
+            
+                <input type="number" id="surfaceHa_max" step="0.01" placeholder="Enter maximum surface area" />
+            </span>
+        <span class="minmax">
+            <!-- <label for="surfaceHa_max">Maximum Surface (ha):</label> -->
+        </span>    
+        </div>
+
+        <!-- Filter Button -->
+        <button id="filterButton">Filter Data</button>
+
+        <!-- Filter Results List -->
+        <ul id="resultList"></ul>
+    </div>
+
+    <!-- Map Section -->
+    <div id="map-section">
+        <div id="map"></div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="static/script.js"></script>
+</body>
+</html>
