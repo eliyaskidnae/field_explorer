@@ -94,3 +94,26 @@ select, input[type="number"] {
 #resultList li {
     cursor: pointer;
 }
+
+#area_details ul{
+    font-size: 1rem;
+    color: #333;
+    display: inline-block;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.card ul li {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 2.5rem;
+}
+
+.card ul li:hover {
+    background-color: #bcccdb;
+}
+
+.card ul li span:nth-child(2) {
+    font-weight: bold;
+    color: orange;
+}

@@ -102,7 +102,20 @@ async function filterData() {
     });
 
     const geojson = await response.json();
-    const results = geojson.features;
+    const results = geojson.filtered_features.features;
+    const lt_1 = geojson.features_lt_1;
+    const bn_1_3 = geojson.features_1_to_3;
+    const bn_3_8 = geojson.features_3_to_8;
+    const gt_8 = geojson.features_gt_8;
+    const total_area = geojson.total_features;
+    const all_features  = geojson.all_features;
+
+    document.getElementById('lt_1').textContent = lt_1;
+    document.getElementById('bn_1_3').textContent = bn_1_3;
+    document.getElementById('bn_3_8').textContent = bn_3_8;
+    document.getElementById('gt_8').textContent = gt_8;
+    document.getElementById('total_area').textContent =`${total_area} / ${all_features}` ;
+    // document.getElementById('all_features').innerHTML 
     document.getElementById('resultList').innerHTML = ''; 
     console.log(`${results.length} results received`);
 

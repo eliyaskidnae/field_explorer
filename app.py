@@ -44,15 +44,46 @@ def filter_data():
         surface_ha_min = float(surface_ha_min) if surface_ha_min else None
         surface_ha_max = float(surface_ha_max) if surface_ha_max else None
 
+        # Filter the DataFrame based on the input criteria
         filtered_df = geojson_df[
-            (geojson_df["code_cultu"] == code_cultu)
+            (geojson_df["lbl_cultur"] == code_cultu)
             & ((surface_ha_min is None) | (geojson_df["surface_ha"] >= surface_ha_min))
             & ((surface_ha_max is None) | (geojson_df["surface_ha"] <= surface_ha_max))
         ]
+
+        # Sort the filtered DataFrame
         filtered_df.sort_values(by="surface_ha", ascending=False, inplace=True)
+
+        # Calculate the required statistics
+        total_features = len(filtered_df)
+        features_lt_1 = len(filtered_df[filtered_df["surface_ha"] < 1])
+        features_1_to_3 = len(
+            filtered_df[
+                (filtered_df["surface_ha"] >= 1) & (filtered_df["surface_ha"] < 3)
+            ]
+        )
+        features_3_to_8 = len(
+            filtered_df[
+                (filtered_df["surface_ha"] >= 3) & (filtered_df["surface_ha"] < 8)
+            ]
+        )
+        features_gt_8 = len(filtered_df[filtered_df["surface_ha"] >= 8])
+
+        # Convert the filtered DataFrame to JSON
         filtered_features = filtered_df.head(1000).to_json()
 
-        return jsonify(json.loads(filtered_features))
+        # Create the response dictionary
+        response = {
+            "total_features": total_features,
+            "features_lt_1": features_lt_1,
+            "features_1_to_3": features_1_to_3,
+            "features_3_to_8": features_3_to_8,
+            "features_gt_8": features_gt_8,
+            "filtered_features": json.loads(filtered_features),
+            "all_features": len(geojson_df),
+        }
+
+        return jsonify(response)
     except ValueError:
         return jsonify({"error": "Invalid input for surface area."})
 
