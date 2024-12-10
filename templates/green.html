@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,52 +13,121 @@
     <!-- Include select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
     <!-- Include select2 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!-- Or for RTL support -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" />
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
 </head>
+
 <body>
 
-<div id="container">
-    <!-- Form Section -->
-    <div id="form-section">
-        <h2>Filter Geographical Data</h2>
+    <div id="container">
+        <!-- Form Section -->
+        <div id="form-section">
+            <h2>Filter Geographical Data</h2>
 
-        <!-- Dropdown-->
-        <div class="form-group" id="list_dropdown">
-            <label for="codeCultu">Code Cultu:</label>
-            <select id="codeCultu">
-                <!-- Options will be populated dynamically -->
-            </select>
+            <!-- Dropdown-->
+            <div class="form-group" id="list_dropdown">
+                <label for="codeCultu">lbl_Cultur:</label>
+                <select class="form-select" id="codeCultu" data-placeholder="Choose">
+
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
+            <!-- Input for 'surface_ha' -->
+            <div class="form-group" id="minmax_filter">
+                <span class="minmax">
+                    <!-- <label for="surfaceHa_min">Minimum Surface (ha):</label> -->
+                    <input type="number" id="surfaceHa_min" step="0.01" placeholder="Enter minimum surface area" />
+
+                    <input type="number" id="surfaceHa_max" step="0.01" placeholder="Enter maximum surface area" />
+                </span>
+                <span class="minmax">
+                    <!-- <label for="surfaceHa_max">Maximum Surface (ha):</label> -->
+                </span>
+            </div>
+
+            <!-- Filter Button -->
+            <button id="filterButton">Filter Data</button>
+            <div class="card" style="width: 30rem;">
+                <div class="card-header">
+                    Area details
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <p>Total:</p> <span id="total_area">0</span>
+                    </li>
+                    <li class="list-group-item">
+                        <p>LT 1 ha:</p><span id="lt_1">0</span>
+                    </li>
+                    <li class="list-group-item">
+                        <p>GT 1 ha and LT 3 ha:</p><span id="bn_1_3">0</span>
+                    </li>
+                    <li class="list-group-item">
+                        <p> GT 3 ha and LT 8 ha:</p><span id="bn_3_8">0</span>
+                    </li>
+                    <li class="list-group-item">
+                        <p> GT 8 ha: </p><span id="gt_8">0</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- <div id="area_details">
+            <h3>Area Details</h3>
+            <ul>
+            <li>Total : <span id="total_area">0</span></li> 
+            <li> A < 1 ha: <span id="lt_1"></span></li>
+            <li> 1 ha < A < 3 ha: <span id="bn_1_3">0</span></li>
+            <li> 3 ha < A <  8 ha: <span id="bn_3_8">0</span></li>
+            <li> A > 8: <span id="gt_8">0</span></li>
+            </ul>
+        </div> -->
+            <!-- Filter Results List -->
+            <ul id="resultList"></ul>
         </div>
 
-        <!-- Input for 'surface_ha' -->
-        <div class="form-group" id="minmax_filter">
-            <span class="minmax">
-                <!-- <label for="surfaceHa_min">Minimum Surface (ha):</label> -->
-                <input type="number" id="surfaceHa_min" step="0.01" placeholder="Enter minimum surface area" />
-            
-                <input type="number" id="surfaceHa_max" step="0.01" placeholder="Enter maximum surface area" />
-            </span>
-        <span class="minmax">
-            <!-- <label for="surfaceHa_max">Maximum Surface (ha):</label> -->
-        </span>    
+        <!-- Map Section -->
+        <div id="map-section">
+            <div id="map"></div>
         </div>
-
-        <!-- Filter Button -->
-        <button id="filterButton">Filter Data</button>
-
-        <!-- Filter Results List -->
-        <ul id="resultList"></ul>
     </div>
 
-    <!-- Map Section -->
-    <div id="map-section">
-        <div id="map"></div>
-    </div>
-</div>
-
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="static/script.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="static/script.js"></script>
+    <script>
+        $('#single-select-field').select2({
+            theme: "bootstrap-5",
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+            placeholder: $(this).data('placeholder'),
+        });
+    </script>
 </body>
+
 </html>

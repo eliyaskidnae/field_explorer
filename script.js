@@ -9,9 +9,10 @@ let geojsonData;
 let features = [];
 async function loadGeoJSON() {
     try {
-        const response  = await fetch('/data');
+        const response = await fetch('/data');
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        
         let partialData = ''; 
         let done = false;
 
@@ -23,29 +24,27 @@ async function loadGeoJSON() {
                 try {
                     const parsedData = JSON.parse(partialData);
                     partialData = ''; 
-                    if (parsedData.code_cultu_data.features) {
-                        features = features.concat(parsedData.code_cultu_data.features);
+                    if (parsedData.features) {
+                        features = features.concat(parsedData.features);
                     }
                 } catch (error) {
                     continue;
                 }
             }
         }
-        // Parse the complete JSON data
-        const res = await fetch('/data');
-        codeCultuData = await res.json();
-        populateDropdown(codeCultuData.data_file_name);
+
+        populateDropdown();
     } catch (error) {
         console.error('Error loading GeoJSON data:', error);
     }
 }
 
-async function populateDropdown(item_name) {
+async function populateDropdown() {
     try {
         let codeCultuData;
 
         // Check if data is available in localStorage
-        const storedData = localStorage.getItem(item_name);
+        const storedData = localStorage.getItem('codeCultuData');
         if (storedData) {
             codeCultuData = JSON.parse(storedData);
             console.log('Data loaded from localStorage');
@@ -53,9 +52,8 @@ async function populateDropdown(item_name) {
             // Fetch data from the server
             const response = await fetch('/data');
             codeCultuData = await response.json();
-            codeCultuData  = codeCultuData.code_cultu_data
             // Save data to localStorage
-            localStorage.setItem(item_name, JSON.stringify(codeCultuData));
+            localStorage.setItem('codeCultuData', JSON.stringify(codeCultuData));
             console.log('Data fetched from server and saved to localStorage');
         }
 
@@ -77,6 +75,9 @@ async function populateDropdown(item_name) {
         console.error('Error fetching codeCultu data:', error);
     }
 }
+
+// Call the function to populate the dropdown when the page loads
+populateDropdown();
 
 loadGeoJSON();
 
@@ -114,6 +115,7 @@ async function filterData() {
     document.getElementById('bn_3_8').textContent = bn_3_8;
     document.getElementById('gt_8').textContent = gt_8;
     document.getElementById('total_area').textContent =`${total_area} / ${all_features}` ;
+    // document.getElementById('all_features').innerHTML 
     document.getElementById('resultList').innerHTML = ''; 
     console.log(`${results.length} results received`);
 
@@ -122,8 +124,7 @@ async function filterData() {
 
     results.forEach(feature => {
         const listItem = document.createElement('li');
-        
-        listItem.textContent = feature.properties.hasOwnProperty('lbl_commun') ? `${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}` : `${feature.properties.CODE_CULTU} Surface: ${feature.properties.SURF_PARC}`;
+        listItem.textContent = `${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}`;
 
         listItem.addEventListener('click', () => {
             const coordinates = feature.geometry.coordinates[0]; 
