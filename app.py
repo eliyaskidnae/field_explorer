@@ -11,12 +11,15 @@ import click
 
 app = Flask(__name__)
 # Default filename
-default_filename = "RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
+default_filename = "data/RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
 
 
 @click.command()
 @click.option(
-    "--filepath", default=default_filename, help="Path of the shapefile to load"
+    "--filepath",
+    default=default_filename,
+    help="Path of the shapefile to load",
+    type=str,
 )
 def get_filename(filepath):
     print("Filepath:", filepath)
