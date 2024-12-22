@@ -244,7 +244,7 @@ async function exportToExcel() {
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Export Data');
 
         // Generate Excel and trigger download
-        XLSX.writeFile(workbook, 'code_cultu_export.xlsx');
+        XLSX.writeFile(workbook, `${DATA_FILE_NAME}.xlsx`);
         
     } catch (error) {
         console.error('Error exporting data to Excel:', error);
