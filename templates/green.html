@@ -51,7 +51,7 @@
         <!-- Form Section -->
         <div id="form-section">
             <h2>Filter Geographical Data</h2>
-
+            <button id="exportButton">Export to Excel</button>
             <!-- Dropdown-->
             <div class="form-group" id="list_dropdown">
                 <label for="codeCultu">lbl_Cultur:</label>
@@ -98,18 +98,6 @@
                     </li>
                 </ul>
             </div>
-
-            <!-- <div id="area_details">
-            <h3>Area Details</h3>
-            <ul>
-            <li>Total : <span id="total_area">0</span></li> 
-            <li> A < 1 ha: <span id="lt_1"></span></li>
-            <li> 1 ha < A < 3 ha: <span id="bn_1_3">0</span></li>
-            <li> 3 ha < A <  8 ha: <span id="bn_3_8">0</span></li>
-            <li> A > 8: <span id="gt_8">0</span></li>
-            </ul>
-        </div> -->
-            <!-- Filter Results List -->
             <ul id="resultList"></ul>
         </div>
 
@@ -128,6 +116,7 @@
             placeholder: $(this).data('placeholder'),
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 </body>
 
 </html>
