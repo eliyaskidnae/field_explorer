@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-from flask import Flask, request, jsonify, render_template
 import json
 import geopandas as gpd
 import pandas as pd
@@ -9,71 +7,41 @@ from filter import *
 import os
 import click
 
-app = Flask(__name__)
-# Default filename
-default_filename = "RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
+filename = None  # Path to the shapefile
+geojson_df = None  # GeoPandas DataFrame
+filter_code = None  # Column name to filter the data
+is_bio = None  # Type of data
 
 
-@click.command()
-@click.option(
-    "--filepath",
-    default=default_filename,
-    help="Path of the shapefile to load",
-    type=str,
-)
-def get_filename(filepath):
-    print("Filepath:", filepath)
-    return filepath
-
-
-# Load GeoJSON data into a Pandas DataFrame when the application starts
-def load_geojson_to_dataframe(file_path):
-    with open(file_path, "r") as f:
-        data = json.load(f)
-    features = data["features"]
-    properties = [feature["properties"] for feature in features]
-    geometry = [feature["geometry"] for feature in features]
-    df = pd.DataFrame(properties)
-    df["geometry"] = geometry
-    print("number of rows: ", df.shape[0])
-    return df
-
-
-@app.route("/")
-def index():
-    return render_template("green.html")
-
-
-@app.route("/data", methods=["GET"])
-def get_data():
+def get_data_category():
+    global filename
+    global geojson_df
+    global filter_code
+    global is_bio
     # Read the JSON file and send its content as the response
     json_filename = f"{os.path.splitext(filename)[0]}.json"
-    main(geojson_df, json_filename, column_name=filter_code)
+    # Extract unique values from the specified column
+    unique_values = geojson_df[filter_code].unique()
+    # Create a dictionary with keys as 1, 2, 3, ... and values as the unique values
+    values_dict = {str(i + 1): value for i, value in enumerate(unique_values)}
+    # Save to JSON file
+    with open(json_filename, "w") as f:
+        json.dump(values_dict, f)
+
     with open(json_filename, "r") as f:
         code_cultu_data = json.load(f)
-        print("filname", filename)
+        print("filname", json_filename)
 
     response = {"data_file_name": filename, "code_cultu_data": code_cultu_data}
-    return jsonify(response)
+    return response
 
 
-@app.route("/filter", methods=["POST"])
-def filter_data():
-    code_cultu = request.form.get("codeCultu")
-    surface_ha_min = request.form.get("surfaceHa_min")
-    surface_ha_max = request.form.get("surfaceHa_max")
-    try:
-        surface_ha_min = float(surface_ha_min) if surface_ha_min else None
-        surface_ha_max = float(surface_ha_max) if surface_ha_max else None
-        response = filter_geojson(
-            geojson_df, code_cultu, surface_ha_min, surface_ha_max
-        )
-        return jsonify(response)
-    except ValueError:
-        return jsonify({"error": "Invalid input for surface area."})
+def filter_geojson(code_cultu, surface_ha_min=None, surface_ha_max=None):
+    global filename
+    global geojson_df
+    global filter_code
+    global is_bio
 
-
-def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=None):
     filter_surface = "surface_ha" if "surface_ha" in geojson_df.columns else "SURF_PARC"
     filtered_df = geojson_df[
         (geojson_df[filter_code] == code_cultu)
@@ -122,16 +90,20 @@ def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=N
     return response
 
 
-@app.route("/export", methods=["GET"])
 def prepare_data_for_export():
+    global filename
+    global geojson_df
+    global filter_code
+    global is_bio
+
     json_filename = f"{os.path.splitext(filename)[0]}.json"
     with open(json_filename) as f:
         data = json.load(f)
         result = []
-        for _, v in data.items():
-            response = filter_geojson(geojson_df, v)
+        for _, code in data.items():
+            response = filter_geojson(code)
             row = {
-                "code_cultu": v,
+                "code_cultu": code,
                 "total_features": response["total_features"],
                 "features_lt_1": response["features_lt_1"],
                 "features_1_to_3": response["features_1_to_3"],
@@ -144,14 +116,46 @@ def prepare_data_for_export():
             }
             result.append(row)
 
-        return jsonify(result)
+        return result
 
 
-if __name__ == "__main__":
+default_filename = "data/RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
+
+
+@click.command()
+@click.option(
+    "--filepath",
+    default=default_filename,
+    help="Path of the shapefile to load",
+    type=str,
+)
+def get_filename(filepath):
+    print("Filepath:", filepath)
+    return filepath
+
+
+def main():
+    global filename
+    global geojson_df
+    global filter_code
+    global is_bio
+
     filename = get_filename(standalone_mode=False)
+    print("Filepath:", filename)
     geojson_df = gpd.read_file(filename)
     filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
     is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
     if filter_code == "CODE_CULTU":
         geojson_df = geojson_df.to_crs(epsg=4326)
-    app.run(debug=True)
+    # Get the data category
+    data_category = get_data_category()
+    print(data_category)
+    # export the data to a JSON file
+    export_data = prepare_data_for_export()
+    df = pd.DataFrame(export_data)
+    # # Export the DataFrame to an Excel file
+    df.to_excel(filename + ".xlsx", index=False)
+
+
+if __name__ == "__main__":
+    main()

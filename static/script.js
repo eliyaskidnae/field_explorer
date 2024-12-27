@@ -233,6 +233,8 @@ async function exportToExcel() {
                 'Features > 8ha': item.features_gt_8,
                 'Mean surface': item.mean_surface,
                 "Median surface": item.median_surface,
+                "data_source": item.data_source,
+                "type": item.type,
             }
         ));
 
