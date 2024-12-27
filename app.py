@@ -11,7 +11,7 @@ import click
 
 app = Flask(__name__)
 # Default filename
-default_filename = "data/RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
+default_filename = "RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
 
 
 @click.command()
@@ -65,7 +65,12 @@ def filter_data():
     try:
         surface_ha_min = float(surface_ha_min) if surface_ha_min else None
         surface_ha_max = float(surface_ha_max) if surface_ha_max else None
+        response = filter_geojson(geojson_df, code_cultu, surface_ha_min, surface_ha_max)
+        return jsonify(response)
+    except ValueError:
+        return jsonify({"error": "Invalid input for surface area."})
 
+def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=None):
         filter_surface = (
             "surface_ha" if "surface_ha" in geojson_df.columns else "SURF_PARC"
         )
@@ -99,6 +104,10 @@ def filter_data():
         )
         features_gt_8 = len(filtered_df[filtered_df[filter_surface] >= 8])
 
+        #mean and median
+        mean_surface = filtered_df[filter_surface].mean()
+        median_surface = filtered_df[filter_surface].median()
+
         # Convert the filtered DataFrame to JSON
         filtered_features = filtered_df.head(30).to_json()
 
@@ -112,12 +121,33 @@ def filter_data():
             "filtered_features": json.loads(filtered_features),
             "all_features": len(geojson_df),
             "data_file_name": filename,
+            "mean_surface": mean_surface,
+            "median_surface": median_surface
         }
+        return response    
 
-        return jsonify(response)
-    except ValueError:
-        return jsonify({"error": "Invalid input for surface area."})
 
+@app.route("/export", methods=["GET"])
+def prepare_data_for_export():
+    json_filename = f"{os.path.splitext(filename)[0]}.json"
+    with open(json_filename) as f:
+        data = json.load(f)
+        result = []
+        for _, v in data.items():
+            response = filter_geojson(geojson_df, v)
+            row = {
+            "code_cultu": v,
+            "total_features": response["total_features"],
+            "features_lt_1": response["features_lt_1"],
+            "features_1_to_3": response["features_1_to_3"],
+            "features_3_to_8": response["features_3_to_8"],
+            "features_gt_8": response["features_gt_8"],
+            "mean_surface": response["mean_surface"],
+            "median_surface": response["median_surface"],
+            }
+            result.append(row)
+        
+        return jsonify(result)
 
 if __name__ == "__main__":
     filename = get_filename(standalone_mode=False)

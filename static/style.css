@@ -50,7 +50,7 @@ select, input[type="number"] {
 }
 
 /* Button styling */
-#filterButton {
+#filterButton, #exportButton {
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -60,8 +60,18 @@ select, input[type="number"] {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
+#exportButton {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1f6153;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-#filterButton:hover {
+#filterButton:hover, #exportButton:hover {
     background-color: #0056b3;
 }
 

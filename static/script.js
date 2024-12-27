@@ -5,6 +5,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 let parsedGeoJSON;
 let geojsonData;
+let DATA_FILE_NAME = undefined;
 
 let features = [];
 async function loadGeoJSON() {
@@ -34,6 +35,7 @@ async function loadGeoJSON() {
         // Parse the complete JSON data
         const res = await fetch('/data');
         codeCultuData = await res.json();
+        DATA_FILE_NAME = codeCultuData.data_file_name;
         populateDropdown(codeCultuData.data_file_name);
     } catch (error) {
         console.error('Error loading GeoJSON data:', error);
@@ -198,5 +200,59 @@ function getPolygonCenter(coordinates) {
 }
 
 
+async function exportToExcel() {
+    const exportButton = document.getElementById('exportButton');
+    exportButton.textContent = 'Preparing download...';
+
+    try {
+        let exportData;
+        let export_fname = `${DATA_FILE_NAME}_export`;
+
+        // Check if data is available in localStorage
+        const storedData = localStorage.getItem(export_fname);
+        if (storedData) {
+            exportData = JSON.parse(storedData);
+            console.log('Export data loaded from localStorage');
+        } else {
+            // Fetch data from the server
+            const response = await fetch('/export');
+            exportData = await response.json();
+            // Save data to localStorage
+            localStorage.setItem(export_fname, JSON.stringify(exportData));
+            console.log('Export data fetched from server and saved to localStorage');
+        }
+
+        // Prepare the data for Excel
+        const worksheetData = exportData.map(item => (
+            {
+                'Code Cultu': item.code_cultu,
+                'Total Features': item.total_features,
+                'Features < 1ha': item.features_lt_1,
+                'Features 1-3ha': item.features_1_to_3,
+                'Features 3-8ha': item.features_3_to_8,
+                'Features > 8ha': item.features_gt_8,
+                'Mean surface': item.mean_surface,
+                "Median surface": item.median_surface,
+            }
+        ));
+
+        // Create a new Excel workbook and worksheet
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Export Data');
+
+        // Generate Excel and trigger download
+        XLSX.writeFile(workbook, 'code_cultu_export.xlsx');
+        
+    } catch (error) {
+        console.error('Error exporting data to Excel:', error);
+    } finally {
+        exportButton.textContent = 'Export to Excel';
+    }
+}
+
 // Event listener for filter button
 document.getElementById('filterButton').addEventListener('click', filterData);
+document.getElementById('exportButton').addEventListener('click', exportToExcel);
