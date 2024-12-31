@@ -162,4 +162,4 @@ if __name__ == "__main__":
     filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
     is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
 
-    app.run(host="0.0.0.0", port="5000", debug=True)
+    app.run(host="10.100.13.13", port="5000", debug=True)
