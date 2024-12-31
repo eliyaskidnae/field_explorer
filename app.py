@@ -41,6 +41,7 @@ def load_geojson_to_dataframe(file_path):
 
 @app.route("/")
 def index():
+    print("Load the index.html file")
     return render_template("green.html")
 
 
@@ -48,6 +49,8 @@ def index():
 def get_data():
     # Read the JSON file and send its content as the response
     json_filename = f"{os.path.splitext(filename)[0]}.json"
+    print("json_filename", json_filename)
+
     main(geojson_df, json_filename, column_name=filter_code)
     with open(json_filename, "r") as f:
         code_cultu_data = json.load(f)
@@ -104,7 +107,8 @@ def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=N
     median_surface = filtered_df[filter_surface].median()
 
     # Convert the filtered DataFrame to JSON
-    filtered_features = filtered_df.head(30).to_json()
+    filtered_features = filtered_df.head(30)
+    filtered_features = filtered_features.to_json()
 
     # Create the response dictionary
     response = {
@@ -150,8 +154,12 @@ def prepare_data_for_export():
 if __name__ == "__main__":
     filename = get_filename(standalone_mode=False)
     geojson_df = gpd.read_file(filename)
+    print("Sucessfully loaded the GeoJSON data into a DataFrame")
+    if geojson_df.crs.to_string() != "EPSG:4326":
+        print("Converting to EPSG:4326")
+        geojson_df = geojson_df.to_crs(epsg=4326)
+
     filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
     is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
-    if filter_code == "CODE_CULTU":
-        geojson_df = geojson_df.to_crs(epsg=4326)
+
     app.run(debug=True)
