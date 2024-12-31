@@ -158,9 +158,9 @@ if __name__ == "__main__":
     # if geojson_df.crs.to_string() != "EPSG:4326":
     #     print("Converting to EPSG:4326")
     #     geojson_df = geojson_df.to_crs(epsg=4326)
-    
+
     print("Sucessfully loaded the GeoJSON data into a DataFrame")
     filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
     is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
 
-    app.run(host="127.0.0.1", port="5000", debug=True)
+    app.run(host="10.100.13.13", port="5000", debug=True)
