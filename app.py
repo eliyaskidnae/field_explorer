@@ -55,8 +55,11 @@ def get_data():
     with open(json_filename, "r") as f:
         code_cultu_data = json.load(f)
         print("filname", filename)
-
-    response = {"data_file_name": filename, "code_cultu_data": code_cultu_data}
+    response = {
+        "data_file_name": filename,
+        "code_cultu_data": code_cultu_data,
+        "type": field_types,
+    }
     return jsonify(response)
 
 
@@ -77,17 +80,17 @@ def filter_data():
 
 
 def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=None):
+    field_type = None
     filter_surface = "surface_ha" if "surface_ha" in geojson_df.columns else "SURF_PARC"
     filtered_df = geojson_df[
         (geojson_df[filter_code] == code_cultu)
+        & (geojson_df["type"] == "bio")
         & ((surface_ha_min is None) | (geojson_df[filter_surface] >= surface_ha_min))
         & ((surface_ha_max is None) | (geojson_df[filter_surface] <= surface_ha_max))
     ]
 
     # Sort the filtered DataFrame
     filtered_df.sort_values(by=filter_surface, ascending=False, inplace=True)
-
-    # Calculate the required statistics
     # Calculate the required statistics
     total_features = len(filtered_df)
     features_lt_1 = len(filtered_df[filtered_df[filter_surface] < 1])
@@ -149,38 +152,37 @@ def prepare_data_for_export():
         data = json.load(f)
         result = []
         for _, code in data.items():
-            response = filter_geojson(geojson_df, code)
-            row = {
-                "code_cultu": code,
-                "total_features": response["total_features"],
-                "features_lt_1": response["features_lt_1"],
-                "total_area_lt_1": response["total_area_lt_1"],
-                "features_1_to_3": response["features_1_to_3"],
-                "total_area_lt_1_to_3": response["total_area_lt_1_to_3"],
-                "features_3_to_8": response["features_3_to_8"],
-                "total_area_3_to_8": response["total_area_3_to_8"],
-                "features_gt_8": response["features_gt_8"],
-                "total_area_gt_8": response["total_area_gt_8"],
-                "mean_surface": response["mean_surface"],
-                "median_surface": response["median_surface"],
-                "data_source": filename,
-                "type": is_bio,
-            }
-            result.append(row)
-
+            for _, field_type in field_types.items():
+                response = filter_geojson(geojson_df, code, field_type)
+                row = {
+                    "code_cultu": code,
+                    "total_features": response["total_features"],
+                    "features_lt_1": response["features_lt_1"],
+                    "total_area_lt_1": response["total_area_lt_1"],
+                    "features_1_to_3": response["features_1_to_3"],
+                    "total_area_lt_1_to_3": response["total_area_lt_1_to_3"],
+                    "features_3_to_8": response["features_3_to_8"],
+                    "total_area_3_to_8": response["total_area_3_to_8"],
+                    "features_gt_8": response["features_gt_8"],
+                    "total_area_gt_8": response["total_area_gt_8"],
+                    "mean_surface": response["mean_surface"],
+                    "median_surface": response["median_surface"],
+                    "data_source": filename,
+                    "type": field_type,
+                }
+                result.append(row)
         return jsonify(result)
 
 
 if __name__ == "__main__":
     filename = get_filename(standalone_mode=False)
     geojson_df = pd.read_pickle(filename)
-    # geojson_df = gpd.read_file(filename)
-    # if geojson_df.crs.to_string() != "EPSG:4326":
-    #     print("Converting to EPSG:4326")
-    #     geojson_df = geojson_df.to_crs(epsg=4326)
-
     print("Sucessfully loaded the GeoJSON data into a DataFrame")
-    filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
-    is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
-
-    app.run(host="10.100.13.13", port="5000", debug=True)
+    filter_code = "code_cultu"
+    field_types = geojson_df["type"].unique()
+    # change to dictionary
+    field_types = {str(i + 1): value for i, value in enumerate(field_types)}
+    host_local = "127.0.0.1"
+    host_server = "10.100.13.13"
+    port = 5000
+    app.run(host=host_local, port="5000", debug=True)

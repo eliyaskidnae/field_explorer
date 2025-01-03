@@ -174,6 +174,17 @@ def main():
     # Export the DataFrame to an Excel file
     df.to_excel(filename + ".xlsx", index=False)
 
+    
 
 if __name__ == "__main__":
-    main()
+    data1 = pd.read_pickle("data/rpg-bio-2022-national/rpg-bio-2022-national.pkl")
+    data2 = pd.read_pickle("data/RPG_2-2__GPKG_LAMB93_FXX_2023-01-01/PARCELLES_GRAPHIQUES_4326.pkl")
+
+    data1['type'] = 'bio'
+    data1['source'] = 'rpg-bio-2022-national'
+    data2['source'] = 'RPG_2-2__GPKG_LAMB93_FXX_2023-01-01'
+    data2['type'] = 'conventional'
+    data2.rename(columns={"CODE_CULTU": "code_cult" ,"SURF_PARC" : 'surface_ha' , "CODE_GROUP" : "code_group" }, inplace=True)
+    data = pd.concat([data1, data2], ignore_index=True)
+    data.to_pickle("data/merged_data.pkl")
+    # main()
