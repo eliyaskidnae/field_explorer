@@ -120,7 +120,7 @@ def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=N
     median_surface = filtered_df[filter_surface].median()
 
     # Convert the filtered DataFrame to JSON
-    filtered_features = filtered_df.head(1000).to_json()
+    filtered_features = filtered_df.head(100).to_json()
 
     # Create the response dictionary
     response = {

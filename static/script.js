@@ -182,7 +182,7 @@ results.forEach(feature => {
 
         // Add click event listener to the marker
         marker.on('click', () => {
-            map.setView(center, 19);
+            map.setView(center, 15);
         });
     } else {
         console.error("Invalid coordinates for polygon.");
@@ -225,18 +225,18 @@ async function exportToExcel() {
         // Prepare the data for Excel
         const worksheetData = exportData.map(item => (
             {
-                'Code Cultu': item.code_cultu,
-                'Total Features': item.total_features,
-                'Features < 1ha': item.features_lt_1,
-                'Total Surface < 1ha': item.total_area_lt_1,
-                'Features 1-3ha': item.features_1_to_3,
-                'Total Surface 1-3ha': item.total_area_lt_1_to_3,
-                'Features 3-8ha': item.features_3_to_8,
-                'Total Surface 3-8ha': item.total_area_3_to_8,
+                'Code_Cultu': item.code_cultu,
+                'Total_Fields': item.total_features,
+                'Fields < 1ha': item.features_lt_1,
+                'Total_Surface_Area < 1ha': item.total_area_lt_1,
+                'Fields_1-3ha': item.features_1_to_3,
+                'Total_Surface_Area_1-3ha': item.total_area_lt_1_to_3,
+                'Fields_3-8ha': item.features_3_to_8,
+                'Total_Surface_Area 3-8ha': item.total_area_3_to_8,
                 'Features > 8ha': item.features_gt_8,
-                'Total Surface > 8ha': item.total_area_3_to_8,
-                'Mean surface': item.mean_surface,
-                "Median surface": item.median_surface,
+                'Total_Surface_Area > 8ha': item.total_area_3_to_8,
+                'Mean_Surface_Area': item.mean_surface,
+                "Median_Surface_Area": item.median_surface,
                 "data_source": item.data_source,
                 "type": item.type,
             }
