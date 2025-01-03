@@ -88,35 +88,49 @@ def filter_geojson(geojson_df, code_cultu, surface_ha_min=None, surface_ha_max=N
     filtered_df.sort_values(by=filter_surface, ascending=False, inplace=True)
 
     # Calculate the required statistics
+    # Calculate the required statistics
     total_features = len(filtered_df)
     features_lt_1 = len(filtered_df[filtered_df[filter_surface] < 1])
+    total_area_lt_1 = filtered_df[filtered_df[filter_surface] < 1][filter_surface].sum()
     features_1_to_3 = len(
         filtered_df[
             (filtered_df[filter_surface] >= 1) & (filtered_df[filter_surface] < 3)
         ]
     )
+    total_area_lt_1_to_3 = filtered_df[
+            (filtered_df[filter_surface] >= 1) & (filtered_df[filter_surface] < 3)
+        ][filter_surface].sum()
+
     features_3_to_8 = len(
         filtered_df[
             (filtered_df[filter_surface] >= 3) & (filtered_df[filter_surface] < 8)
         ]
     )
+    total_area_3_to_8 = filtered_df[
+            (filtered_df[filter_surface] >= 3) & (filtered_df[filter_surface] < 8)
+        ][filter_surface].sum()
     features_gt_8 = len(filtered_df[filtered_df[filter_surface] >= 8])
+
+    total_area_gt_8 = filtered_df[filtered_df[filter_surface] >= 8][filter_surface].sum()
 
     # mean and median
     mean_surface = filtered_df[filter_surface].mean()
     median_surface = filtered_df[filter_surface].median()
 
     # Convert the filtered DataFrame to JSON
-    filtered_features = filtered_df.head(1000)
-    filtered_features = filtered_features.to_json()
+    filtered_features = filtered_df.head(30).to_json()
 
     # Create the response dictionary
     response = {
         "total_features": total_features,
         "features_lt_1": features_lt_1,
+        "total_area_lt_1": total_area_lt_1,
         "features_1_to_3": features_1_to_3,
+        "total_area_lt_1_to_3": total_area_lt_1_to_3,
         "features_3_to_8": features_3_to_8,
+        "total_area_3_to_8": total_area_3_to_8,
         "features_gt_8": features_gt_8,
+        "total_area_gt_8": total_area_gt_8,
         "filtered_features": json.loads(filtered_features),
         "all_features": len(geojson_df),
         "data_file_name": filename,
@@ -135,12 +149,16 @@ def prepare_data_for_export():
         for _, v in data.items():
             response = filter_geojson(geojson_df, v)
             row = {
-                "code_cultu": v,
+                "code_cultu": code,
                 "total_features": response["total_features"],
                 "features_lt_1": response["features_lt_1"],
+                "total_area_lt_1": response["total_area_lt_1"],
                 "features_1_to_3": response["features_1_to_3"],
+                "total_area_lt_1_to_3": response["total_area_lt_1_to_3"],
                 "features_3_to_8": response["features_3_to_8"],
+                "total_area_3_to_8": response["total_area_3_to_8"],
                 "features_gt_8": response["features_gt_8"],
+                "total_area_gt_8": response["total_area_gt_8"],
                 "mean_surface": response["mean_surface"],
                 "median_surface": response["median_surface"],
                 "data_source": filename,

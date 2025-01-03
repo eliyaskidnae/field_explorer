@@ -55,17 +55,27 @@ def filter_geojson(code_cultu, surface_ha_min=None, surface_ha_max=None):
     # Calculate the required statistics
     total_features = len(filtered_df)
     features_lt_1 = len(filtered_df[filtered_df[filter_surface] < 1])
+    total_area_lt_1 = filtered_df[filtered_df[filter_surface] < 1][filter_surface].sum()
     features_1_to_3 = len(
         filtered_df[
             (filtered_df[filter_surface] >= 1) & (filtered_df[filter_surface] < 3)
         ]
     )
+    total_area_lt_1_to_3 = filtered_df[
+            (filtered_df[filter_surface] >= 1) & (filtered_df[filter_surface] < 3)
+        ][filter_surface].sum()
+
     features_3_to_8 = len(
         filtered_df[
             (filtered_df[filter_surface] >= 3) & (filtered_df[filter_surface] < 8)
         ]
     )
+    total_area_3_to_8 = filtered_df[
+            (filtered_df[filter_surface] >= 3) & (filtered_df[filter_surface] < 8)
+        ][filter_surface].sum()
     features_gt_8 = len(filtered_df[filtered_df[filter_surface] >= 8])
+
+    total_area_gt_8 = filtered_df[filtered_df[filter_surface] >= 8][filter_surface].sum()
 
     # mean and median
     mean_surface = filtered_df[filter_surface].mean()
@@ -78,9 +88,13 @@ def filter_geojson(code_cultu, surface_ha_min=None, surface_ha_max=None):
     response = {
         "total_features": total_features,
         "features_lt_1": features_lt_1,
+        "total_area_lt_1": total_area_lt_1,
         "features_1_to_3": features_1_to_3,
+        "total_area_lt_1_to_3": total_area_lt_1_to_3,
         "features_3_to_8": features_3_to_8,
+        "total_area_3_to_8": total_area_3_to_8,
         "features_gt_8": features_gt_8,
+        "total_area_gt_8": total_area_gt_8,
         "filtered_features": json.loads(filtered_features),
         "all_features": len(geojson_df),
         "data_file_name": filename,
@@ -106,9 +120,13 @@ def prepare_data_for_export():
                 "code_cultu": code,
                 "total_features": response["total_features"],
                 "features_lt_1": response["features_lt_1"],
+                "total_area_lt_1": response["total_area_lt_1"],
                 "features_1_to_3": response["features_1_to_3"],
+                "total_area_lt_1_to_3": response["total_area_lt_1_to_3"],
                 "features_3_to_8": response["features_3_to_8"],
+                "total_area_3_to_8": response["total_area_3_to_8"],
                 "features_gt_8": response["features_gt_8"],
+                "total_area_gt_8": response["total_area_gt_8"],
                 "mean_surface": response["mean_surface"],
                 "median_surface": response["median_surface"],
                 "data_source": filename,
@@ -119,8 +137,7 @@ def prepare_data_for_export():
         return result
 
 
-default_filename = "data/RPG_2-2__SHP_LAMB93_R84_2023-01-01/PARCELLES_GRAPHIQUES.shp"
-
+default_filename = "data/RPG_2-2__GPKG_LAMB93_FXX_2023-01-01/PARCELLES_GRAPHIQUES_4326.pkl"
 
 @click.command()
 @click.option(
@@ -141,19 +158,20 @@ def main():
     global is_bio
 
     filename = get_filename(standalone_mode=False)
+    geojson_df = pd.read_pickle(filename)
     print("Filepath:", filename)
-    geojson_df = gpd.read_file(filename)
+    # geojson_df = gpd.read_file(filename)
     filter_code = "code_cultu" if "code_cultu" in geojson_df.columns else "CODE_CULTU"
     is_bio = "bio" if "code_cultu" in geojson_df.columns else "non_bio"
-    if filter_code == "CODE_CULTU":
-        geojson_df = geojson_df.to_crs(epsg=4326)
+    # if filter_code == "CODE_CULTU":
+        # geojson_df = geojson_df.to_crs(epsg=4326)/
     # Get the data category
     data_category = get_data_category()
     print(data_category)
     # export the data to a JSON file
     export_data = prepare_data_for_export()
     df = pd.DataFrame(export_data)
-    # # Export the DataFrame to an Excel file
+    # Export the DataFrame to an Excel file
     df.to_excel(filename + ".xlsx", index=False)
 
 
