@@ -90,6 +90,8 @@ async function filterData() {
     const surfaceHaValue_min = document.getElementById('surfaceHa_min').value;
     const surfaceHaValue_max = document.getElementById('surfaceHa_max').value;
 
+    console.log('Filtering data...', codeCultuValue, surfaceHaValue_min, surfaceHaValue_max);
+
     const response = await fetch('/filter', {
         method: 'POST',
         headers: {
@@ -101,8 +103,14 @@ async function filterData() {
             surfaceHa_min: surfaceHaValue_min,
         })
     });
+    
+    console.log('response data...' , response);
+
+   
+    
 
     const geojson = await response.json();
+    console.log('Filtering data...' , geojson);
     const results = geojson.filtered_features.features;
     const lt_1 = geojson.features_lt_1;
     const bn_1_3 = geojson.features_1_to_3;
