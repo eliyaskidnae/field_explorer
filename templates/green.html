@@ -53,10 +53,9 @@
             <h2>Filter Geographical Data</h2>
             <button id="exportButton">Export to Excel</button>
             <!-- Dropdown-->
-            <div class="form-group" id="list_dropdown">
+            <div>
                 <label for="codeCultu">lbl_Cultur:</label>
-                <select class="form-select" id="codeCultu" data-placeholder="Choose">
-
+                <select class="form-select" id="codeCultu" data-placeholder="Choose codeCultu">
                     <!-- Options will be populated dynamically -->
                 </select>
             </div>
@@ -70,7 +69,11 @@
                     <input type="number" id="surfaceHa_max" step="0.01" placeholder="Enter maximum surface area" />
                 </span>
                 <span class="minmax">
-                    <!-- <label for="surfaceHa_max">Maximum Surface (ha):</label> -->
+                    <select class="form-select" id="field_type" data-placeholder="Choose field type">
+                        <option value="all">All</option>
+                        <option value="bio">Bio</option>
+                        <option value="conventional">Conventional</option>
+                    </select>
                 </span>
             </div>
 
@@ -110,10 +113,13 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="static/script.js"></script>
     <script>
-        $('#single-select-field').select2({
+        $('#field_type').select2({
             theme: "bootstrap-5",
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
             placeholder: $(this).data('placeholder'),
+        });
+        $('#codeCultu').select2({
+            theme: "bootstrap-5",
+            placeholder:$(this).data('placeholder'),
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
