@@ -116,10 +116,14 @@
         $('#field_type').select2({
             theme: "bootstrap-5",
             placeholder: $(this).data('placeholder'),
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+
         });
         $('#codeCultu').select2({
             theme: "bootstrap-5",
             placeholder:$(this).data('placeholder'),
+            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
