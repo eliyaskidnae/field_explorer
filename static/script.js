@@ -122,11 +122,21 @@ async function filterData() {
 
     results.forEach(feature => {
         const listItem = document.createElement('li');
-        
-        // listItem.textContent = feature.properties.hasOwnProperty('lbl_commun') ? `<mark class=${feature.properties.type}>`+`${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}</mark>` : `<mark class=${feature.properties.type}>`+`${feature.properties.code_cultu} Surface: ${feature.properties.surface_ha}</mark>`;
+        const icon_url = feature.properties.type == 'conventional' ?
+        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png':
+        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png'
+        const myIcon = new L.Icon({
+            iconUrl: icon_url,
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
         listItem.innerHTML = feature.properties.hasOwnProperty('lbl_commun') ? 
-    `<mark class=${feature.properties.type}>${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}</mark>` : 
-    `<mark class=${feature.properties.type}>${feature.properties.code_cultu} Surface: ${feature.properties.surface_ha}</mark>`;
+        `<mark class=${feature.properties.type}>${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}</mark>` : 
+        `<mark class=${feature.properties.type}>${feature.properties.code_cultu} Surface: ${feature.properties.surface_ha}</mark>`;
+     
 
         listItem.addEventListener('click', () => {
             const coordinates = feature.geometry.coordinates[0]; 
@@ -143,12 +153,10 @@ async function filterData() {
                 const center = getPolygonCenter(coordinates);
                 const [lat, lon] = center; 
                 map.setView([lat, lon], 19);
-                // L.marker(center).addTo(layerGroup).bindPopup(feature.properties.lbl_commun).openPopup();
-                const marker = L.marker(center).addTo(layerGroup).bindPopup(feature.properties.lbl_commun);//.openPopup();
+                const marker = L.marker(center, {icon: myIcon}).addTo(layerGroup).bindPopup(feature.properties.lbl_commun);//.openPopup();
 
                 // Add click event listener to the marker
                 marker.on('click', () => {
-                    console.log('Marker clicked');
                     map.setView([lat, lon], 19);
                 });
             } else {
@@ -160,6 +168,17 @@ async function filterData() {
 
 // Add markers for each feature
 results.forEach(feature => {
+    const icon_url = feature.properties.type == 'conventional' ?
+    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png':
+    'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png'
+    const myIcon = new L.Icon({
+        iconUrl: icon_url,
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
     const geometry = feature.geometry;
     let coordinates = [];
 
@@ -179,7 +198,7 @@ results.forEach(feature => {
         }).addTo(layerGroup);
 
         const center = getPolygonCenter(coordinates);
-        const marker = L.marker(center).addTo(layerGroup).bindPopup(feature.properties.lbl_commun).openPopup();
+        const marker = L.marker(center, {icon: myIcon}).addTo(layerGroup).bindPopup(feature.properties.lbl_commun);//.openPopup();
 
         // Add click event listener to the marker
         marker.on('click', () => {
