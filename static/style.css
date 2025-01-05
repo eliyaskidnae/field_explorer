@@ -127,3 +127,14 @@ select, input[type="number"] {
     font-weight: bold;
     color: orange;
 }
+
+mark.bio{
+    background-color: blue;
+    color: white;
+    opacity: 0.5;
+}
+
+mark.conventional{
+    background-color: orange;
+    color: black;
+}
