@@ -71,10 +71,6 @@ async function populateDropdown(item_name) {
             codeCultuSelect.appendChild(option);
         });
 
-        $('#codeCultu').select2({
-            placeholder: "Select a code cultu", 
-            allowClear: true 
-        });
     } catch (error) {
         console.error('Error fetching codeCultu data:', error);
     }
@@ -86,11 +82,10 @@ loadGeoJSON();
 const layerGroup = L.layerGroup().addTo(map);
 
 async function filterData() {
-    const codeCultuValue = document.getElementById('codeCultu').value;
-    const surfaceHaValue_min = document.getElementById('surfaceHa_min').value;
-    const surfaceHaValue_max = document.getElementById('surfaceHa_max').value;
-
-    console.log('Filtering data...', codeCultuValue, surfaceHaValue_min, surfaceHaValue_max);
+    const codeCultuValue        = document.getElementById('codeCultu').value;
+    const surfaceHaValue_min    = document.getElementById('surfaceHa_min').value;
+    const surfaceHaValue_max    = document.getElementById('surfaceHa_max').value;
+    const fieldTypeValue        = document.getElementById('field_type') .value;
 
     const response = await fetch('/filter', {
         method: 'POST',
@@ -101,30 +96,25 @@ async function filterData() {
             codeCultu: codeCultuValue,
             surfaceHa_max: surfaceHaValue_max,
             surfaceHa_min: surfaceHaValue_min,
+            field_type: fieldTypeValue,
         })
     });
-    
-    console.log('response data...' , response);
-
-   
-    
-
-    const geojson = await response.json();
-    console.log('Filtering data...' , geojson);
-    const results = geojson.filtered_features.features;
-    const lt_1 = geojson.features_lt_1;
-    const bn_1_3 = geojson.features_1_to_3;
-    const bn_3_8 = geojson.features_3_to_8;
-    const gt_8 = geojson.features_gt_8;
-    const total_area = geojson.total_features;
+      
+    const geojson       = await response.json();
+    const results       = geojson.filtered_features.features;
+    const lt_1          = geojson.features_lt_1;
+    const bn_1_3        = geojson.features_1_to_3;
+    const bn_3_8        = geojson.features_3_to_8;
+    const gt_8          = geojson.features_gt_8;
+    const total_area    = geojson.total_features;
     const all_features  = geojson.all_features;
 
-    document.getElementById('lt_1').textContent = lt_1;
-    document.getElementById('bn_1_3').textContent = bn_1_3;
-    document.getElementById('bn_3_8').textContent = bn_3_8;
-    document.getElementById('gt_8').textContent = gt_8;
-    document.getElementById('total_area').textContent =`${total_area} / ${all_features}` ;
-    document.getElementById('resultList').innerHTML = ''; 
+    document.getElementById('lt_1').textContent         =   lt_1;
+    document.getElementById('bn_1_3').textContent       =   bn_1_3;
+    document.getElementById('bn_3_8').textContent       =   bn_3_8;
+    document.getElementById('gt_8').textContent         =   gt_8;
+    document.getElementById('total_area').textContent   =   `${total_area} / ${all_features}` ;
+    document.getElementById('resultList').innerHTML     =   ''; 
     console.log(`${results.length} results received`);
 
     // Clear the layer group
@@ -133,16 +123,19 @@ async function filterData() {
     results.forEach(feature => {
         const listItem = document.createElement('li');
         
-        listItem.textContent = feature.properties.hasOwnProperty('lbl_commun') ? `${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}` : `${feature.properties.CODE_CULTU} Surface: ${feature.properties.SURF_PARC}`;
+        // listItem.textContent = feature.properties.hasOwnProperty('lbl_commun') ? `<mark class=${feature.properties.type}>`+`${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}</mark>` : `<mark class=${feature.properties.type}>`+`${feature.properties.code_cultu} Surface: ${feature.properties.surface_ha}</mark>`;
+        listItem.innerHTML = feature.properties.hasOwnProperty('lbl_commun') ? 
+    `<mark class=${feature.properties.type}>${feature.properties.lbl_commun}, Surface: ${feature.properties.surface_ha}</mark>` : 
+    `<mark class=${feature.properties.type}>${feature.properties.code_cultu} Surface: ${feature.properties.surface_ha}</mark>`;
 
         listItem.addEventListener('click', () => {
             const coordinates = feature.geometry.coordinates[0]; 
             if (Array.isArray(coordinates) && coordinates.length > 0) {
                 const leafletCoordinates = coordinates.map(coord => [coord[1], coord[0]]);
                 L.polygon(leafletCoordinates, {
-                    color: 'blue',
+                    color: feature.properties.type ==='bio'?'blue':'orange',
                     weight: 3,
-                    fillColor: 'blue',
+                    fillColor: feature.properties.type ==='bio'?'blue':'orange',
                     fillOpacity: 0.2
                 }).addTo(layerGroup);
 
@@ -179,9 +172,9 @@ results.forEach(feature => {
     if (Array.isArray(coordinates) && coordinates.length > 0) {
         const leafletCoordinates = coordinates.map(coord => [coord[1], coord[0]]);
         L.polygon(leafletCoordinates, {
-            color: 'blue',
+            color: feature.properties.type ==='bio'?'blue':'orange',
             weight: 3,
-            fillColor: 'blue',
+            fillColor: feature.properties.type ==='bio'?'blue':'orange',
             fillOpacity: 0.05
         }).addTo(layerGroup);
 
